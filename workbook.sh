@@ -4,9 +4,14 @@ export PROKECT_NS=civis-demo
 export APP_ENV=master
 
 # CREATE CLUSTER AND ADD TO KC
+# authenticates machine through google cloud sdk, gcloud cli required
 gcloud auth login
-gcloud config set project civis-demo-181920
-gcloud container clusters create toy-cluster -z ${GCLOUD_ZONE} -m n1-standard-2
+# advisorconnect-1238 is the project id for advisorconnect's google cloud platform environment
+gcloud config set project advisorconnect-1238
+# creates cluster and applies gcloud resource, as well defines the type of machine to be used for nodes
+# type of machine defaults to n1-standard-1 (REVISIT)
+gcloud container clusters create toy-cluster -z ${GCLOUD_ZONE} -m n1-standard-1
+# gcloud goes and 
 gcloud container clusters get-credentials toy-cluster
 
 #CREATE PERSISTANT DRIVES
@@ -54,9 +59,8 @@ kubectl create -f ./k8s/${APP_ENV}/03-flask-app-hpa.yaml
 
 #CLEANUP
 # gcloud auth login
-# gcloud config set project civis-demo-181920
+# gcloud config set project advisorconnect-1238
 kubectl config unset users.$(kubectl config view -o json | jq .users |  grep gke_civis-demo | tr -d '"' | tr -d ',' | sed -e 's/.*://' | tr -d '[:space:]')
 kubectl config unset contexts.$(kubectl config view -o json | jq .contexts |  grep name | grep gke_civis-demo | tr -d '"' | tr -d ',' | sed -e 's/.*://' | tr -d '[:space:]')
 kubectl config unset clusters.$(kubectl config view -o json | jq .clusters  |  grep gke_civis-demo | tr -d '"' | tr -d ',' | sed -e 's/.*://' | tr -d '[:space:]')
 gcloud container clusters delete toy-cluster
-
